@@ -36,13 +36,36 @@ class MainWindow(QMainWindow):
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(qApp.quit)
 
-        self.listLabel = QLabel(self)
-        self.listLabel.setText("label")
-        self.projectsList = QListView(self)
-        self.projectsManager = ProjectsManager()
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(exitAction)
+
+
+        self.activeProjectsLabel = QLabel(self)
+        self.activeProjectsLabel.setText("ACTIVE PROJECTS")
+
+        # instantiate project manager
+        self.projectsManager = ProjectsManager()
+        self.projectsManager.addProject(Project("Project name 0"))
+        self.projectsManager.addProject(Project("Project name 1"))
+        self.projectsManager.addProject(Project("Project name 2"))
+        self.projectsManager.addProject(Project("Project name 3"))
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.activeProjectsLabel)
+
+        i = 0
+        for p in self.projectsManager.activeProjects:
+            button = QPushButton(p.name, self)
+            button.move(0, 100 * i)
+            button.setStyleSheet("background: white")
+            layout.addWidget(button)
+            i += 1
+
+        window = QWidget(self)
+        window.setLayout(layout)
+
+        self.setCentralWidget(window)
 
 def main():
     app = QApplication(sys.argv)
