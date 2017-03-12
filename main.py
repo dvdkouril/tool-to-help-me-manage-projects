@@ -2,6 +2,7 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from PyQt5 import uic
 from project import Project
 
 class ProjectsManager:
@@ -31,18 +32,14 @@ class MainWindow(QMainWindow):
 
         #ui
         self.statusBar().showMessage('Ready')
-        exitAction = QAction(QIcon('exit.png'), '&Exit', self)
-        exitAction.setShortcut('Ctrl+Q')
-        exitAction.setStatusTip('Exit application')
-        exitAction.triggered.connect(qApp.quit)
+        addAction = QAction("&Add", self)
+        addAction.setShortcut('Cmd+N')
+        addAction.setStatusTip('Add New Project')
+        addAction.triggered.connect(self.showAddDialog)
 
         menubar = self.menuBar()
-        fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(exitAction)
-
-
-        self.activeProjectsLabel = QLabel(self)
-        self.activeProjectsLabel.setText("ACTIVE PROJECTS")
+        fileMenu = menubar.addMenu("&File")
+        fileMenu.addAction(addAction)
 
         # instantiate project manager
         self.projectsManager = ProjectsManager()
@@ -52,20 +49,32 @@ class MainWindow(QMainWindow):
         self.projectsManager.addProject(Project("Project name 3"))
 
         layout = QVBoxLayout()
-        layout.addWidget(self.activeProjectsLabel)
+        layout.setSpacing(1)
+
+        scrollArea = QScrollArea(self)
+        central = QWidget()
+        scrollArea.setWidget(central)
+        scrollArea.setLayout(layout)
 
         i = 0
         for p in self.projectsManager.activeProjects:
-            button = QPushButton(p.name, self)
-            button.move(0, 100 * i)
-            button.setStyleSheet("background: white")
+            button = QPushButton(p.name)
+            button.setStyleSheet("background: white; padding: 10px; text-align: left;")
             layout.addWidget(button)
             i += 1
 
-        window = QWidget(self)
-        window.setLayout(layout)
+        self.setCentralWidget(scrollArea)
 
-        self.setCentralWidget(window)
+    def showAddDialog(self):
+        #uic.loadUi('add-new-project.ui', self)
+        addDialog = AddProjectDialog(self)
+
+class AddProjectDialog(QDialog):
+    def __init__(self, parent=None):
+        super(AddProjectDialog, self).__init__(parent)
+        print("add project clicked")
+        uic.loadUi('add-new-project.ui', self)
+        self.show()
 
 def main():
     app = QApplication(sys.argv)
